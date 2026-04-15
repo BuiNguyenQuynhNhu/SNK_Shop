@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+// ================= USER =================
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String
+  role      Role     @default(STAFF)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employee  Employee?
+  cart      Cart?
+  favourite Favourite?
+}
+
+// ================= CUSTOMER =================
+model Customer {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String   @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  address   Address?
+}
+
+// ================= ADDRESS =================
+model Address {
+  id          Int      @id @default(autoincrement())
+  street      String
+  province    String
+  city        String
+  fullAddress String
+
+  customerId  Int      @unique
+  customer    Customer @relation(fields: [customerId], references: [id])
+}
+
+// ================= MEDIA =================
+model Media {
+  id   Int    @id @default(autoincrement())
+  link String @unique
+}
+
+// ================= BRAND =================
+model Brand {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+
+  logoId      Int?
+  logo        Media?   @relation("BrandLogo", fields: [logoId], references: [id])
+
+  imageId     Int?
+  image       Media?   @relation("BrandImage", fields: [imageId], references: [id])
+
+  sneakers    Sneaker[]
+}
+
+// ================= SNEAKER =================
+model Sneaker {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  basePrice   Float
+
+  brandId     Int
+  brand       Brand    @relation(fields: [brandId], references: [id])
+
+  images      SneakerImage[]
+  variants    Variant[]
+  carts       CartItem[]
+  favourites  FavouriteItem[]
+  prices      Price[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ================= SNEAKER IMAGE (FIX) =================
+model SneakerImage {
+  id        Int     @id @default(autoincrement())
+
+  sneakerId Int
+  sneaker   Sneaker @relation(fields: [sneakerId], references: [id])
+
+  mediaId   Int
+  media     Media   @relation(fields: [mediaId], references: [id])
+}
+
+// ================= PRICE =================
+model Price {
+  id         Int      @id @default(autoincrement())
+  price      Float
+  discount   Float?
+
+  sneakerId  Int
+  sneaker    Sneaker  @relation(fields: [sneakerId], references: [id])
+
+  createdAt  DateTime @default(now())
+}
+
+// ================= VARIANT =================
+model Variant {
+  id         Int      @id @default(autoincrement())
+
+  sneakerId  Int
+  sneaker    Sneaker  @relation(fields: [sneakerId], references: [id])
+
+  color      String
+  size       Int
+  price      Float
+  stock      Int
+
+  image      String?
+
+  @@unique([sneakerId, color, size])
+}
+
+// ================= CART =================
+model Cart {
+  id          Int      @id @default(autoincrement())
+
+  userId      Int      @unique
+  user        User     @relation(fields: [userId], references: [id])
+
+  items       CartItem[]
+}
+
+model CartItem {
+  id         Int      @id @default(autoincrement())
+
+  cartId     Int
+  cart       Cart     @relation(fields: [cartId], references: [id])
+
+  sneakerId  Int
+  sneaker    Sneaker  @relation(fields: [sneakerId], references: [id])
+
+  quantity   Int      @default(1)
+
+  @@unique([cartId, sneakerId])
+}
+
+// ================= FAVOURITE =================
+model Favourite {
+  id        Int      @id @default(autoincrement())
+
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id])
+
+  items     FavouriteItem[]
+}
+
+model FavouriteItem {
+  id         Int      @id @default(autoincrement())
+
+  favouriteId Int
+  favourite   Favourite @relation(fields: [favouriteId], references: [id])
+
+  sneakerId  Int
+  sneaker    Sneaker   @relation(fields: [sneakerId], references: [id])
+
+  @@unique([favouriteId, sneakerId])
+}
+
+// ================= EMPLOYEE =================
+model Employee {
+  id        Int    @id @default(autoincrement())
+
+  userId    Int    @unique
+  user      User   @relation(fields: [userId], references: [id])
+
+  imageId   Int?
+  image     Media? @relation(fields: [imageId], references: [id])
+
+  fullName  String
+  phone     String
+  address   String?
+
+  position  String
+  salary    Float?
+  hireDate  DateTime @default(now())
+
+  isActive  Boolean @default(true)
+}
