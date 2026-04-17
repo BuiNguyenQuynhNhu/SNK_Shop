@@ -18,15 +18,17 @@ model User {
 
   email    String @unique
   password String
+  name     String
 
-  phone   String  @unique
-  address String?
+  phone   String   @unique
+  address Address? @relation(fields: [addressId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  employee Employee?
-  customer Customer?
+  employee  Employee?
+  customer  Customer?
+  addressId Int?
 }
 
 // ================= CUSTOMER =================
@@ -35,8 +37,6 @@ model Customer {
 
   userId Int  @unique
   user   User @relation(fields: [userId], references: [id])
-
-  name String
 
   carts      Cart?
   favourites Favourite?
@@ -54,6 +54,7 @@ model Address {
 
   customerId Int      @unique
   customer   Customer @relation(fields: [customerId], references: [id])
+  User       User[]
 }
 
 // ================= MEDIA =================
