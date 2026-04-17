@@ -13,20 +13,35 @@ enum Role {
   STAFF
 }
 
-// ================= CUSTOMER =================
-model Customer {
-  id    Int    @id @default(autoincrement())
-  name  String
-  email String @unique
-  phone String @unique
+model User {
+  id Int @id @default(autoincrement())
+
+  email    String @unique
+  password String
+
+  phone   String  @unique
+  address String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  address   Address?
-  Cart      Cart?
-  Favourite Favourite?
-  Order     Order[]
+  employee Employee?
+  customer Customer?
+}
+
+// ================= CUSTOMER =================
+model Customer {
+  id Int @id @default(autoincrement())
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
+  name String
+
+  carts      Cart?
+  favourites Favourite?
+  orders     Order[]
+  Address    Address?
 }
 
 // ================= ADDRESS =================
@@ -185,26 +200,28 @@ model FavouriteItem {
 model Employee {
   id Int @id @default(autoincrement())
 
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
   imageId Int?
   image   Media? @relation("EmployeeImage", fields: [imageId], references: [id])
 
-  fullName String
-  phone    String
-  address  String?
-
-  variantId Int
-  variant   EmployeeVariant @relation(fields: [variantId], references: [id])
-
+  position String // STAFF | MANAGER
   isActive Boolean @default(true)
+
+  salaries SalaryHistory[]
 }
 
-model EmployeeVariant {
-  id       Int      @id @default(autoincrement())
-  position String
-  salary   Float?
-  hireDate DateTime @default(now())
+model SalaryHistory {
+  id Int @id @default(autoincrement())
 
-  employees Employee[]
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  amount    Float
+  changedAt DateTime @default(now())
+
+  note String?
 }
 
 // ================= ORDERS =================
