@@ -60,6 +60,13 @@ model Address {
 model Media {
   id   Int    @id @default(autoincrement())
   link String @unique
+
+  brandLogos  Brand[] @relation("BrandLogo")
+  brandImages Brand[] @relation("BrandImage")
+
+  sneakerImages SneakerImage[]
+
+  employeeImages Employee[]
 }
 
 // ================= BRAND =================
@@ -117,7 +124,7 @@ model Price {
   sneakerId  Int
   sneaker    Sneaker  @relation(fields: [sneakerId], references: [id])
 
-  createdAt  DateTime @default(now())
+  updateAt  DateTime @updatedAt
 }
 
 // ================= VARIANT =================
@@ -156,9 +163,12 @@ model CartItem {
   sneakerId  Int
   sneaker    Sneaker  @relation(fields: [sneakerId], references: [id])
 
+  variantId  Int
+  variant    Variant  @relation(fields: [variantId], references: [id])
+
   quantity   Int      @default(1)
 
-  @@unique([cartId, sneakerId])
+  @@unique([cartId, variantId])
 }
 
 // ================= FAVOURITE =================
@@ -202,4 +212,86 @@ model Employee {
   hireDate  DateTime @default(now())
 
   isActive  Boolean @default(true)
+}
+
+// ================= ORDERS =================
+enum OrderStatus {
+  PENDING   
+  CONFIRMED   
+  SHIPPING    
+  COMPLETED   
+  CANCELLED    
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  COD
+  BANK_TRANSFER
+  MOMO
+  VNPAY
+}
+
+model Order {
+  id              Int            @id @default(autoincrement())
+
+  customerId      Int
+  customer        Customer       @relation(fields: [customerId], references: [id])
+
+  address         String         
+  phone           String
+  note            String?
+
+  status          OrderStatus    @default(PENDING)
+  paymentStatus   PaymentStatus  @default(PENDING)
+  paymentMethod   PaymentMethod
+
+  totalAmount     Float
+  shippingFee     Float          @default(0)
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id          Int      @id @default(autoincrement())
+
+  orderId     Int
+  order       Order    @relation(fields: [orderId], references: [id])
+
+  sneakerId   Int
+  sneaker     Sneaker  @relation(fields: [sneakerId], references: [id])
+
+  variantId   Int?
+  variant     Variant? @relation(fields: [variantId], references: [id])
+
+  name        String   
+  price       Float    
+
+  quantity    Int
+
+  total       Float
+}
+
+
+model Payment {
+  id            Int            @id @default(autoincrement())
+
+  orderId       Int            @unique
+  order         Order          @relation(fields: [orderId], references: [id])
+
+  method        PaymentMethod
+  status        PaymentStatus
+
+  transactionId String?       
+
+  paidAt        DateTime?
+  createdAt     DateTime       @default(now())
 }
