@@ -7,28 +7,50 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ================= ENUM =================
 enum Role {
   ADMIN
   MANAGER
   STAFF
 }
 
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPING
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  COD
+  BANK_TRANSFER
+  MOMO
+  VNPAY
+}
+
+// ================= USER =================
 model User {
   id Int @id @default(autoincrement())
 
   email    String @unique
   password String
   name     String
+  phone    String @unique
 
-  phone   String   @unique
-  address Address? @relation(fields: [addressId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  employee  Employee?
-  customer  Customer?
-  addressId Int?
+  customer Customer?
+  employee Employee?
 }
 
 // ================= CUSTOMER =================
@@ -38,41 +60,43 @@ model Customer {
   userId Int  @unique
   user   User @relation(fields: [userId], references: [id])
 
-  carts      Cart?
-  favourites Favourite?
-  orders     Order[]
-  Address    Address?
+  addresses Address[]
+  cart      Cart?
+  favourite Favourite?
+  orders    Order[]
 }
 
 // ================= ADDRESS =================
 model Address {
-  id          Int    @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
+  customerId Int
+  customer   Customer @relation(fields: [customerId], references: [id])
+
   street      String
-  province    String
   city        String
+  province    String
   fullAddress String
 
-  customerId Int      @unique
-  customer   Customer @relation(fields: [customerId], references: [id])
-  User       User[]
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 // ================= MEDIA =================
 model Media {
-  id   Int    @id @default(autoincrement())
-  link String @unique
+  id  Int    @id @default(autoincrement())
+  url String @unique
 
-  brandLogos  Brand[] @relation("BrandLogo")
-  brandImages Brand[] @relation("BrandImage")
-
-  sneakerImages SneakerImage[]
-
+  brandLogos     Brand[]    @relation("BrandLogo")
+  brandImages    Brand[]    @relation("BrandImage")
+  variantImages  Variant[]  @relation("VariantImage")
   employeeImages Employee[] @relation("EmployeeImage")
 }
 
 // ================= BRAND =================
 model Brand {
-  id          Int     @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
   name        String
   description String?
 
@@ -85,48 +109,30 @@ model Brand {
   sneakers Sneaker[]
 }
 
-// ================= SNEAKER =================
+// ================= PRODUCT =================
 model Sneaker {
-  id          Int    @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
   name        String
   description String
-  basePrice   Float
 
   brandId Int
   brand   Brand @relation(fields: [brandId], references: [id])
 
-  images     SneakerImage[]
-  variants   Variant[]
-  carts      CartItem[]
-  favourites FavouriteItem[]
-  prices     Price[]
+  variants       Variant[]
+  favouriteItems FavouriteItem[]
 
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  OrderItem OrderItem[]
-}
+  createdById Int?
+  createdBy   Employee? @relation("SneakerCreatedBy", fields: [createdById], references: [id])
 
-// ================= SNEAKER IMAGE (FIX) =================
-model SneakerImage {
-  id Int @id @default(autoincrement())
+  updatedById Int?
+  updatedBy   Employee? @relation("SneakerUpdatedBy", fields: [updatedById], references: [id])
 
-  sneakerId Int
-  sneaker   Sneaker @relation(fields: [sneakerId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
-  mediaId Int
-  media   Media @relation(fields: [mediaId], references: [id])
-}
-
-// ================= PRICE =================
-model Price {
-  id       Int    @id @default(autoincrement())
-  price    Float
-  discount Float?
-
-  sneakerId Int
-  sneaker   Sneaker @relation(fields: [sneakerId], references: [id])
-
-  updateAt DateTime @updatedAt
+  @@index([brandId])
 }
 
 // ================= VARIANT =================
@@ -138,14 +144,21 @@ model Variant {
 
   color String
   size  Int
+
   price Float
   stock Int
 
-  image     String?
-  CartItem  CartItem[]
-  OrderItem OrderItem[]
+  imageId Int?
+  image   Media? @relation("VariantImage", fields: [imageId], references: [id])
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([sneakerId, color, size])
+  @@index([sneakerId])
 }
 
 // ================= CART =================
@@ -155,7 +168,8 @@ model Cart {
   customerId Int      @unique
   customer   Customer @relation(fields: [customerId], references: [id])
 
-  items CartItem[]
+  items     CartItem[]
+  updatedAt DateTime   @updatedAt
 }
 
 model CartItem {
@@ -163,9 +177,6 @@ model CartItem {
 
   cartId Int
   cart   Cart @relation(fields: [cartId], references: [id])
-
-  sneakerId Int
-  sneaker   Sneaker @relation(fields: [sneakerId], references: [id])
 
   variantId Int
   variant   Variant @relation(fields: [variantId], references: [id])
@@ -207,10 +218,12 @@ model Employee {
   imageId Int?
   image   Media? @relation("EmployeeImage", fields: [imageId], references: [id])
 
-  position String // STAFF | MANAGER
+  role     Role    @default(STAFF)
   isActive Boolean @default(true)
 
-  salaries SalaryHistory[]
+  salaries        SalaryHistory[]
+  createdSneakers Sneaker[]       @relation("SneakerCreatedBy")
+  updatedSneakers Sneaker[]       @relation("SneakerUpdatedBy")
 }
 
 model SalaryHistory {
@@ -219,41 +232,20 @@ model SalaryHistory {
   employeeId Int
   employee   Employee @relation(fields: [employeeId], references: [id])
 
-  amount    Float
-  changedAt DateTime @default(now())
+  amount Float
+  note   String?
 
-  note String?
+  createdAt DateTime @default(now())
 }
 
-// ================= ORDERS =================
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  SHIPPING
-  COMPLETED
-  CANCELLED
-}
-
-enum PaymentStatus {
-  PENDING
-  PAID
-  FAILED
-  REFUNDED
-}
-
-enum PaymentMethod {
-  COD
-  BANK_TRANSFER
-  MOMO
-  VNPAY
-}
-
+// ================= ORDER =================
 model Order {
   id Int @id @default(autoincrement())
 
   customerId Int
   customer   Customer @relation(fields: [customerId], references: [id])
 
+  // snapshot
   address String
   phone   String
   note    String?
@@ -265,33 +257,38 @@ model Order {
   totalAmount Float
   shippingFee Float @default(0)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
   items   OrderItem[]
-  Payment Payment?
+  payment Payment?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([customerId])
 }
 
+// ================= ORDER ITEM =================
 model OrderItem {
   id Int @id @default(autoincrement())
 
   orderId Int
   order   Order @relation(fields: [orderId], references: [id])
 
-  sneakerId Int
-  sneaker   Sneaker @relation(fields: [sneakerId], references: [id])
+  variantId Int
+  variant   Variant @relation(fields: [variantId], references: [id])
 
-  variantId Int?
-  variant   Variant? @relation(fields: [variantId], references: [id])
-
-  name  String
-  price Float
-
+  // snapshot (quan trọng)
+  name     String
+  color    String
+  size     Int
+  price    Float
   quantity Int
+  total    Float
 
-  total Float
+  @@index([orderId])
 }
 
+// ================= PAYMENT =================
 model Payment {
   id Int @id @default(autoincrement())
 

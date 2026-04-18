@@ -5,11 +5,17 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaService } from './prisma/prisma.service';
 import { AuthModule } from './auth/auth.module';
+import { OrderModule } from './order/order.module';
+import { ProductsModule } from './products/products.module';
+import { BrandModule } from './brand/brand.module';
+import { FavouriteModule } from './favourite/favourite.module';
+import { CartModule } from './cart/cart.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   providers: [PrismaService],
   exports: [PrismaService],
-  imports: [AuthModule],
+  imports: [AuthModule, OrderModule, ProductsModule, BrandModule, FavouriteModule, CartModule, PaymentModule],
 })
 export class PrismaModule {}
 

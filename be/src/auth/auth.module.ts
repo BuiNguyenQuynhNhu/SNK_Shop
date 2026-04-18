@@ -1,21 +1,22 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
-import { Reflector } from '@nestjs/core'
+import { Module } from '@nestjs/common';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
-@Injectable()
-export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
-
-  canActivate(context: ExecutionContext): boolean {
-    const roles = this.reflector.getAllAndOverride<string[]>('roles', [
-      context.getHandler(),
-      context.getClass(),
-    ])
-
-    if (!roles) return true
-
-    const req = context.switchToHttp().getRequest()
-    const user = req.user
-
-    return roles.includes(user.role)
-  }
-}
+@Module({
+  imports: [
+    PassportModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1d' },
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy, RolesGuard, JwtAuthGuard],
+  exports: [AuthService, JwtAuthGuard, RolesGuard],
+})
+export class AuthModule {}
