@@ -22,16 +22,25 @@ export class AuthService {
       },
     })
 
-    // Create customer for the user
-    await this.prisma.customer.create({
+    const customer = await this.prisma.customer.create({
       data: {
         userId: user.id,
       },
     })
 
+    const token = this.jwt.sign({
+      sub: user.id,
+      email: user.email,
+      role: 'CUSTOMER',
+    })
+
     return {
       message: 'Register success',
-      user,
+      user: {
+        ...user,
+        customer,
+      },
+      access_token: token,
     }
   }
 

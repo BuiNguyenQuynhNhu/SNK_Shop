@@ -11,11 +11,12 @@ import { BrandModule } from './brand/brand.module';
 import { FavouriteModule } from './favourite/favourite.module';
 import { CartModule } from './cart/cart.module';
 import { PaymentModule } from './payment/payment.module';
+import { MediaModule } from './media/media.module';
 
 @Module({
   providers: [PrismaService],
   exports: [PrismaService],
-  imports: [AuthModule, OrderModule, ProductsModule, BrandModule, FavouriteModule, CartModule, PaymentModule],
+  imports: [AuthModule, OrderModule, ProductsModule, BrandModule, FavouriteModule, CartModule, PaymentModule, MediaModule],
 })
 export class PrismaModule {}
 
@@ -39,8 +40,10 @@ export class PrismaModule {}
         synchronize: true,
       }),
     }),
+    PrismaModule,
+    AuthModule, ProductsModule, OrderModule, BrandModule, FavouriteModule, CartModule, PaymentModule, MediaModule
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [AppService],
 })
 export class AppModule {}
