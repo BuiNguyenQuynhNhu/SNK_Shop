@@ -119,6 +119,9 @@ model Sneaker {
   brandId Int
   brand   Brand @relation(fields: [brandId], references: [id])
 
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+
   variants       Variant[]
   favouriteItems FavouriteItem[]
 
@@ -133,6 +136,22 @@ model Sneaker {
   deletedAt DateTime?
 
   @@index([brandId])
+  @@index([categoryId])
+  @@index([brandId, categoryId])
+  @@index([deletedAt])
+  @@index([createdAt])
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+
+  name        String @unique
+  description String?
+
+  sneakers Sneaker[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ================= VARIANT =================
@@ -159,8 +178,42 @@ model Variant {
 
   @@unique([sneakerId, color, size])
   @@index([sneakerId])
+  @@index([price])
+  @@index([stock])
+  @@index([sneakerId, price])
+  @@index([sneakerId, stock])
 }
 
+enum PromotionType {
+  PERCENT
+  FIXED_AMOUNT
+}
+
+model Promotion {
+  id Int @id @default(autoincrement())
+
+  code String? @unique 
+
+  name        String
+  description String?
+
+  type PromotionType
+  value Float 
+
+  startDate DateTime
+  endDate   DateTime
+
+  minOrderValue Float?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+  @@index([isActive])
+  @@index([startDate, endDate])
+}
 // ================= CART =================
 model Cart {
   id Int @id @default(autoincrement())
@@ -260,11 +313,22 @@ model Order {
   items   OrderItem[]
   payment Payment?
 
+  promotionId Int?
+  promotion   Promotion? @relation(fields: [promotionId], references: [id])
+
+  discountAmount Float @default(0)
+  finalAmount    Float
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-
+  
   @@index([customerId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([createdAt])
+  @@index([customerId, createdAt])
+  @@index([status, createdAt])
 }
 
 // ================= ORDER ITEM =================
