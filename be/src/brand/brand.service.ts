@@ -17,7 +17,7 @@ export class BrandService {
     return this.prisma.brand.findMany({
       include: {
         logo: true,
-        image: true,
+        images: true,
         sneakers: true,
       },
     });
@@ -28,7 +28,7 @@ export class BrandService {
       where: { id },
       include: {
         logo: true,
-        image: true,
+        images: true,
         sneakers: true,
       },
     });

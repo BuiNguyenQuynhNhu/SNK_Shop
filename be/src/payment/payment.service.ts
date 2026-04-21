@@ -42,7 +42,7 @@ export class PaymentService {
     if (order.payment) throw new Error('Payment already exists');
 
     // Create payment
-    const payment = await this.createPayment(orderId, method, order.totalAmount);
+    const payment = await this.createPayment(orderId, method, Number(order.totalAmount));
 
     // Simulate processing based on method
     let status = 'PENDING';
