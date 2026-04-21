@@ -22,7 +22,7 @@ export class OrderService {
           variantId: item.variantId,
           quantity: item.quantity,
           price: variant.price,
-          total: variant.price * item.quantity,
+          total: Number(variant.price) * item.quantity,
           name: variant.sneaker.name,
           color: variant.color,
           size: variant.size,
@@ -40,6 +40,7 @@ export class OrderService {
         note,
         paymentMethod: paymentMethod as any,
         totalAmount,
+        finalAmount: totalAmount,
         items: {
           create: orderItems,
         },
