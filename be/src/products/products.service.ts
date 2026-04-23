@@ -35,9 +35,19 @@ export class ProductsService {
   }
 
   async findAll(query: any) {
-    const { page = 1, limit = 10 } = query;
+    const { page = 1, limit = 10, search } = query;
+
+    const where: any = { deletedAt: null };
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
 
     return this.prisma.sneaker.findMany({
+      where,
       skip: (page - 1) * limit,
       take: Number(limit),
       include: {
