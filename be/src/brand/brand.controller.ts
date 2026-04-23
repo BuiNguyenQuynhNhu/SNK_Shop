@@ -6,11 +6,11 @@ import { Roles } from '../common/guards/roles.decorator.guard';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('brands')
 export class BrandController {
   constructor(private readonly brandService: BrandService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
   @Roles('ADMIN', 'MANAGER')
   create(@Body() createBrandDto: CreateBrandDto) {
@@ -27,12 +27,14 @@ export class BrandController {
     return this.brandService.findOne(Number(id));
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
   @Roles('ADMIN', 'MANAGER')
   update(@Param('id') id: string, @Body() updateBrandDto: UpdateBrandDto) {
     return this.brandService.update(Number(id), updateBrandDto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
   @Roles('ADMIN', 'MANAGER')
   remove(@Param('id') id: string) {

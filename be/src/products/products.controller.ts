@@ -8,11 +8,11 @@ import { CreateSneakerDto } from './dto/create-sneaker.dto';
 import { UpdateSneakerDto } from './dto/update-sneaker.dto';
 import { UpdateVariantDto } from './dto/update-variant.dto';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('products')
 export class ProductsController {
   constructor(private service: ProductsService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
   @Roles('ADMIN', 'MANAGER')
   create(
@@ -32,6 +32,7 @@ export class ProductsController {
     return this.service.findOne(Number(id));
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
   @Roles('ADMIN', 'MANAGER')
   update(
@@ -42,6 +43,7 @@ export class ProductsController {
     return this.service.update(Number(id), dto, user.id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch('variants/:id')
   @Roles('ADMIN', 'MANAGER')
   updateVariant(
