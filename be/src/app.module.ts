@@ -12,6 +12,7 @@ import { FavouriteModule } from './favourite/favourite.module';
 import { CartModule } from './cart/cart.module';
 import { PaymentModule } from './payment/payment.module';
 import { MediaModule } from './media/media.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
 
 @Module({
   providers: [PrismaService],
@@ -41,7 +42,7 @@ export class PrismaModule {}
       }),
     }),
     PrismaModule,
-    AuthModule, ProductsModule, OrderModule, BrandModule, FavouriteModule, CartModule, PaymentModule, MediaModule
+    AuthModule, ProductsModule, OrderModule, BrandModule, FavouriteModule, CartModule, PaymentModule, MediaModule, ChatbotModule
   ],
   controllers: [AppController],
   providers: [AppService],
