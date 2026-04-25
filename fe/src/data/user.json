@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "email": "admin@gmail.com",
+    "password": "admin",
+    "name": "Admin SNK",
+    "phone": "0900000001",
+    "role": "ADMIN"
+  },
+  {
+    "id": 2,
+    "email": "staff@gmail.com",
+    "password": "staff",
+    "name": "Staff SNK",
+    "phone": "0900000002",
+    "role": "STAFF"
+  },
+  {
+    "id": 3,
+    "email": "customer@gmail.com",
+    "password": "customer",
+    "name": "Customer SNK",
+    "phone": "0900000003",
+    "role": "CUSTOMER"
+  }
+]
