@@ -5,7 +5,7 @@
 **SNK Shop** là một hệ thống thương mại điện tử chuyên bán giày sneaker, được xây dựng theo kiến trúc **fullstack tách biệt frontend - backend**, tích hợp chatbot AI hỗ trợ khách hàng.
 
 Hệ thống gồm:
-![Architecture](arch.jped)
+![Architecture](arch.jpeg)
 * 🖥️ **Frontend**: Vue.js
 * ⚙️ **Backend**: NestJS
 * 🤖 **Chatbot AI (Gemini)**: hỗ trợ tư vấn sản phẩm
