@@ -18,7 +18,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
-import ChatBot from "./pages/ChatBot";
+
 import BrandPage from "./pages/BrandPage";
 import Seller from "./pages/Seller"; // 🔥 dùng file Seller.tsx
 import ForgotPassword from "./pages/ForgotPassword";
@@ -149,9 +149,7 @@ const App: React.FC = () => {
       {/* NOTIFICATION */}
       <Notification message={notify} />
 
-      <div style={{ position: "fixed", bottom: 20, right: 20, zIndex: 1000 }}>
-        <ChatBot />
-      </div>
+
 
       <Routes>
         {/* Home */}
