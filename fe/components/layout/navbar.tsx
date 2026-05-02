@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import { ShoppingCartIcon, UserIcon } from '@heroicons/react/24/outline';
+import { ShoppingCartIcon, UserIcon, HeartIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 type User = {
   name: string;
@@ -11,35 +11,58 @@ const Navbar: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
 
   return (
-    <nav className="bg-white shadow-md py-1 px-4 flex justify-between items-center">
+    <nav className="bg-white shadow-md py-2 px-4 flex items-center justify-between">
 
-      {/* LOGO */}
+      {/* LEFT - LOGO */}
       <div className="flex items-center">
-        <Image src="/logo.svg" alt="logo" width={60} height={15} />
+        <Image src="/logo.svg" alt="logo" width={60} height={15} className="object-contain" />
       </div>
 
-      {/* MENU */}
-      <ul className="hidden md:flex space-x-6">
-        <li className="hover:text-blue-500 cursor-pointer">Home</li>
-        <li className="hover:text-blue-500 cursor-pointer">Products</li>
-        <li className="hover:text-blue-500 cursor-pointer">Brands</li>
-        <li className="hover:text-blue-500 cursor-pointer">About</li>
-      </ul>
+      {/* CENTER - MENU */}
+      <div className="flex-1 flex items-center justify-center space-x-6">
 
-      {/* RIGHT SIDE */}
-      <div className="flex items-center space-x-5">
+        {/* MENU */}
+        <ul className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 space-x-6 text-sm font-medium">
+          <li className="hover:text-blue-500 cursor-pointer">Home</li>
+          <li className="hover:text-blue-500 cursor-pointer">Products</li>
+          <li className="hover:text-blue-500 cursor-pointer">Brands</li>
+          <li className="hover:text-blue-500 cursor-pointer">About</li>
+        </ul>
 
+        
+        
+      </div>
+
+      {/* RIGHT - ICONS - SEARCH + AUTH */}
+      {/* SEARCH */}
+        <div className="flex items-center space-x-4 md:space-x-5">
+          <div className="hidden md:flex items-center bg-gray-100 rounded-full px-3 py-1 w-64 focus-within:ring-2 focus-within:ring-blue-400 transition">
+            <MagnifyingGlassIcon className="h-5 w-5 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search shoes..."
+              className="bg-transparent outline-none px-2 text-sm w-full"
+            />
+          </div>
         {/* CART */}
         <div className="relative cursor-pointer hover:text-blue-500 transition-colors duration-200">
           <ShoppingCartIcon className="h-6 w-6 text-gray-800" />
-          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full" alt="cart-count">
+          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
             2
+          </span>
+        </div>
+
+        {/* HEART */}
+        <div className="relative cursor-pointer hover:text-red-500 transition-colors duration-200">
+          <HeartIcon className="h-6 w-6 text-gray-800" />
+          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+            3
           </span>
         </div>
 
         {/* AUTH */}
         {!user ? (
-          <div className="flex space-x-2 text-sm">
+          <div className="hidden md:flex space-x-2 text-sm">
             <button className="hover:text-blue-500">Login</button>
             <span>/</span>
             <button className="hover:text-blue-500">Register</button>
@@ -50,7 +73,7 @@ const Navbar: React.FC = () => {
               <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center border border-gray-300">
                 <UserIcon className="h-5 w-5 text-gray-700" />
               </div>
-              <span className="text-sm font-medium text-gray-800 leading-none" alt="user-name">{user.name}</span>
+              <span className="text-sm font-medium text-gray-800 leading-none">{user.name}</span>
             </div>
 
             <div className="absolute right-0 top-10 hidden group-hover:block bg-white shadow-md rounded-md w-32">
