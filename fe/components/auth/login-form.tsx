@@ -1,16 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { api, LoginDto, saveToken } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 interface LoginFormProps {
-  onSuccess?: () => void
+  redirectTo?: string
 }
 
-export default function LoginForm({ onSuccess }: LoginFormProps) {
-  // form state matches LoginDto exactly
+export default function LoginForm({ redirectTo = '/' }: LoginFormProps) {
+  const router = useRouter()
   const [form, setForm] = useState<LoginDto>({ email: '', password: '' })
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -26,7 +27,8 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
     try {
       const { access_token } = await api.auth.login(form)
       saveToken(access_token)
-      onSuccess?.()
+      router.push(redirectTo)
+      router.refresh()   // re-run server components to pick up the new auth state
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {

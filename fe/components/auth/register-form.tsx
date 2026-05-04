@@ -1,16 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { api, RegisterDto, saveToken } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 interface RegisterFormProps {
-  onSuccess?: () => void
+  redirectTo?: string
 }
 
-export default function RegisterForm({ onSuccess }: RegisterFormProps) {
-  // form state matches RegisterDto exactly
+export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
+  const router = useRouter()
   const [form, setForm] = useState<RegisterDto>({ email: '', password: '', name: '' })
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -26,7 +27,8 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
     try {
       const { access_token } = await api.auth.register(form)
       saveToken(access_token)
-      onSuccess?.()
+      router.push(redirectTo)
+      router.refresh()
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Registration failed')
     } finally {
