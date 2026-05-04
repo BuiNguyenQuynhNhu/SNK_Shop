@@ -35,7 +35,7 @@ export class MediaService {
 
     // Save to database
     const media = await this.prisma.media.create({
-      data: { url },
+      data: { url, type: 'SNEAKER' as any },
     });
 
     return { id: media.id, url };
