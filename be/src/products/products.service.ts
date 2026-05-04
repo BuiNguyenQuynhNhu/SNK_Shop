@@ -52,7 +52,11 @@ export class ProductsService {
       take: Number(limit),
       include: {
         brand: true,
-        variants: true,
+        variants: {
+          include: {
+            image: true,   // ← include Azure image URL for each variant
+          },
+        },
       },
     });
   }
